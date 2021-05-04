@@ -63,6 +63,11 @@ custom_templates:
             tripleo::profile::base::metrics::collectd::amqp_host: "%{hiera('storage')}"
             tripleo::profile::base::metrics::qdr::listener_addr: "%{hiera('storage')}"
 
+        NovaEnableRbdBackend: true
+        CinderEnableRbdBackend: true
+        CinderBackupBackend: ceph
+        GlanceBackend: rbd
+
         ExtraConfig:
             ceilometer::agent::polling::polling_interval: 5
             ceilometer::agent::polling::polling_meters:
