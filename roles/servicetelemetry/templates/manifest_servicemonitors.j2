@@ -1,0 +1,57 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    app: smart-gateway
+  name: '{{ meta.name }}-sg'
+  namespace: '{{ meta.namespace }}'
+spec:
+  endpoints:
+    - interval: {{ servicetelemetry_vars.backends.metrics.prometheus.scrape_interval }}
+      metricRelabelings:
+        - action: labeldrop
+          regex: pod
+          sourcelabels: []
+        - action: labeldrop
+          regex: namespace
+          sourcelabels: []
+        - action: labeldrop
+          regex: instance
+          sourcelabels: []
+        - action: labeldrop
+          regex: job
+          sourcelabels: []
+      port: prom-http
+  selector:
+    matchLabels:
+      app: smart-gateway
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: '{{ meta.name }}-interconnect'
+  namespace: '{{ meta.namespace }}'
+  labels:
+    app: smart-gateway
+spec:
+  selector:
+    matchLabels:
+      application: '{{ meta.name }}-interconnect'
+  endpoints:
+  - port: "8672"
+    interval: 10s
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: '{{ meta.name }}-prom'
+  namespace: '{{ meta.namespace }}'
+  labels:
+    app: smart-gateway
+spec:
+  selector:
+    matchLabels:
+      operated-prometheus: "true"
+  endpoints:
+  - port: web
+    interval: 1s

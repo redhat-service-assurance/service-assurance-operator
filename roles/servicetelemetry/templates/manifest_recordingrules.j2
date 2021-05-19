@@ -1,0 +1,86 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  labels:
+    prometheus: stf-default
+    role: alert-rules
+  name: stf-data-model-rules
+  namespace: service-telemetry
+spec:
+  groups:
+  - name: stf-data-model-base-fs-util
+    rules:
+    - record: stf_fs_util_pcnt_inodes
+      expr: collectd_df_df_inodes{type_instance="used"} /  ignoring(type_instance) (collectd_df_df_inodes{type_instance="used"} + ignoring(type_instance) collectd_df_df_inodes{type_instance="free"}) * 100
+    - record: stf_fs_util_pcnt_bytes
+      expr: collectd_df_df_complex{type_instance="used"} /  ignoring(type_instance) (collectd_df_df_complex{type_instance="used"} + ignoring(type_instance) collectd_df_df_complex{type_instance="free"}) * 100
+    - record: stf_fs_util_inodes
+      expr: collectd_df_df_inodes
+    - record: stf_fs_util_bytes
+      expr: collectd_df_df_complex
+  - name: stf-data-model-base-diskio-util
+    rules:
+    - record: stf_diskio_util_read_bytes_total
+      expr: collectd_disk_disk_octets_read_total
+    - record: stf_diskio_util_write_bytes_total
+      expr: collectd_disk_disk_octets_write_total
+    - record: stf_diskio_util_read_ops_total
+      expr: collectd_disk_disk_ops_read_total
+    - record: stf_diskio_util_write_ops_total
+      expr: collectd_disk_disk_ops_write_total
+    - record: stf_diskio_util_read_pcnt_time
+      expr: (rate(collectd_disk_disk_time_read_total[1m]) / 1000) * 100
+    - record: stf_diskio_util_write_pcnt_time
+      expr: (rate(collectd_disk_disk_time_write_total[1m]) / 1000) * 100
+    - record: stf_diskio_util_all_pcnt_time
+      expr: (rate(collectd_disk_disk_io_time_io_time_total[1m]) / 1000) * 100
+  - name: stf-data-model-base-diskio-sat
+    rules:
+    - record: stf_diskio_sat_ops
+      expr: collectd_disk_pending_operations
+  - name: stf-data-model-base-diskio-lat
+    rules:
+    - record: stf_diskio_lat_read_ns
+      expr: ceilometer_disk_device_read_latency
+    - record: stf_diskio_lat_write_ns
+      expr: ceilometer_disk_device_write_latency
+  - name: stf-data-model-base-qdr-util
+    rules:
+    - record: stf_qdr_util_rx_deliveries_total
+      expr: qdr_deliveries_ingress_total
+    - record: stf_qdr_util_tx_deliveries_total
+      expr: qdr_deliveries_egress_total
+  - name: stf-data-model-base-qdr-sat
+    rules:
+    - record: stf_qdr_util_sat_deliveries_total
+      expr: qdr_deliveries_delayed_1sec_total + qdr_deliveries_stuck_total
+  - name: stf-data-model-base-qdr-err
+    rules:
+    - record: stf_qdr_err_released_deliveries_total
+      expr: qdr_released_deliveries_total
+    - record: stf_qdr_err_rejected_deliveries_total
+      expr: qdr_rejected_deliveries_total
+    - record: stf_qdr_err_dropped_deliveries_total
+      expr: qdr_dropped_presettled_deliveries_total
+  - name: stf-data-model-base-sg-util
+    rules:
+    - record: stf_sg_util_ceilometer_metrics_total
+      expr: sg_total_ceilometer_metric_decode_count
+    - record: stf_sg_util_ceilometer_msgs_total
+      expr: sg_total_ceilometer_msg_received_count
+    - record: stf_sg_util_collectd_metrics_total
+      expr: sg_total_collectd_metric_decode_count
+    - record: stf_sg_util_collectd_msgs_total
+      expr: sg_total_collectd_msg_received_count
+    - record: stf_sg_util_all_metrics_total
+      expr: sg_total_ceilometer_metric_decode_count + sg_total_collectd_metric_decode_count
+    - record: stf_sg_util_all_msgs_total
+      expr: stf_sg_util_ceilometer_msgs_total + sg_total_collectd_msg_received_count
+  - name: stf-data-model-base-sg-err
+    rules:
+    - record: stf_sg_err_collectd_decode_total
+      expr: sg_total_collectd_metric_decode_error_count
+    - record: stf_sg_err_ceilometer_decode_total
+      expr: sg_total_ceilometer_metric_decode_error_count
+    - record: stf_sg_err_all_decode_total
+      expr: sg_total_ceilometer_metric_decode_error_count + sg_total_collectd_metric_decode_error_count

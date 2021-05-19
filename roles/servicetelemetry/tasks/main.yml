@@ -19,6 +19,10 @@
 - name: Create Service Monitor instance
   include_tasks: component_servicemonitor.yml
 
+# create Prometheus Recording Rules instance
+- name: Create Prometheus Recording Rules instance
+  include_tasks: component_recordingrules.yml
+
 # --> backends.events
 - name: Deploy ElasticSearch events backend
   block:

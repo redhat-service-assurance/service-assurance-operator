@@ -1,0 +1,4 @@
+- name: Create default Service Monitor manifest
+  set_fact:
+    recordingrules_manifest: {{ lookup('template', './manifest_recordingrules.j2') | from_yaml }}
+  when: recordingrules_manifest is not defined

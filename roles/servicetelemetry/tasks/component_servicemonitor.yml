@@ -1,33 +1,6 @@
 - name: Create default Service Monitor manifest
   set_fact:
-    servicemonitor_manifest: |
-      apiVersion: monitoring.coreos.com/v1
-      kind: ServiceMonitor
-      metadata:
-        labels:
-          app: smart-gateway
-        name: '{{ meta.name }}'
-        namespace: '{{ meta.namespace }}'
-      spec:
-        endpoints:
-          - interval: {{ servicetelemetry_vars.backends.metrics.prometheus.scrape_interval }}
-            metricRelabelings:
-              - action: labeldrop
-                regex: pod
-                sourcelabels: []
-              - action: labeldrop
-                regex: namespace
-                sourcelabels: []
-              - action: labeldrop
-                regex: instance
-                sourcelabels: []
-              - action: labeldrop
-                regex: job
-                sourcelabels: []
-            port: prom-http
-        selector:
-          matchLabels:
-            app: smart-gateway
+    servicemonitor_manifest: {{ lookup('template', './manifest_servicemonitors.j2') | from_yaml }}
   when: servicemonitor_manifest is not defined
 
 - name: Create ServiceMonitor to scrape Smart Gateway
