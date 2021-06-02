@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: perftest-cloud1-rsyslog-event-sg-core-configmap
+data:
+  sg-core.conf.yaml: |
+    handleErrors: true
+    transports:
+      - name: socket
+        config:
+          path: /tmp/smartgateway
+        handlers:
+          - name: logs
+            config:
+              messageField: message
+              timestampField: "@timestamp"
+              hostnameField: host
+              severityField: severity
+              correctSeverity: true
+    applications:
+      - name: elasticsearch
+        config:
+          useBasicAuth: true
+          hostURL: https://elasticsearch-es-http.service-telemetry.svc.cluster.local:9200
+          user: elastic
+          password: U15j550j498YkjLm1fLN6PeQ
+          useTLS: true
+          tlsServerName: elasticsearch-es-http.service-telemetry.svc.cluster.local
+          tlsClientCert: /config/certs/tls.crt
+          tlsClientKey: /config/certs/tls.key
+          tlsCaCert: /config/certs/ca.crt
+

@@ -1,0 +1,85 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: perftest-cloud1-rsyslog-event-smartgateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: smart-gateway
+      smart-gateway: perftest-cloud1-rsyslog-event-smartgateway
+  strategy:
+    rollingUpdate:
+      maxSurge: 50%
+      maxUnavailable: 50%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: smart-gateway
+        smart-gateway: perftest-cloud1-rsyslog-event-smartgateway
+    spec:
+      containers:
+      - args:
+        - --amqp_url
+        - amqp://default-interconnect.service-telemetry.svc.cluster.local:5672/rsyslog/logs
+        - --verbose
+        - --block
+        - --stat_period
+        - "60"
+        - --rbc
+        - "15000"
+        - --count
+        - "0"
+        image: image-registry.openshift-image-registry.svc:5000/service-telemetry/sg-bridge:latest
+        imagePullPolicy: Always
+        name: bridge
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /tmp
+          name: socket-dir
+      - args:
+        - -config
+        - /etc/sg-core/sg-core.conf.yaml
+        env:
+        - name: MY_POD_NAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.name
+        image: image-registry.openshift-image-registry.svc:5000/service-telemetry/sg-core:latest
+        imagePullPolicy: Always
+        name: sg-core
+        ports:
+        - containerPort: 8081
+          name: events
+          protocol: TCP
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /tmp
+          name: socket-dir
+        - mountPath: /etc/sg-core/
+          name: sg-core-config
+          readOnly: true
+        - mountPath: /config/certs
+          name: elastic-certs
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - emptyDir: {}
+        name: socket-dir
+      - configMap:
+          defaultMode: 420
+          name: perftest-cloud1-rsyslog-event-sg-core-configmap
+        name: sg-core-config
+      - name: elastic-certs
+        secret:
+          defaultMode: 420
+          secretName: elasticsearch-es-cert

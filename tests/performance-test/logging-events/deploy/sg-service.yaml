@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: perftest-cloud1-rsyslog-event-smartgateway
+spec:
+  ports:
+  - name: prom-http
+    port: 8081
+    protocol: TCP
+    targetPort: 8081
+  selector:
+    app: smart-gateway
+    smart-gateway: perftest-cloud1-rsyslog-event-smartgateway
+  sessionAffinity: None
+  type: ClusterIP
+status:
+  loadBalancer: {}

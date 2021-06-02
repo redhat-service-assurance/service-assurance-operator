@@ -1,0 +1,35 @@
+apiVersion: interconnectedcloud.github.io/v1alpha1
+kind: Interconnect
+metadata:
+  name: qdr-test
+spec:
+  deploymentPlan:
+      role: edge
+      size: 1
+      placement: Any
+  addresses:
+    - prefix: closest
+      distribution: closest
+    - prefix: multicast
+      distribution: multicast
+    - prefix: unicast
+      distribution: closest
+    - prefix: exclusive
+      distribution: closest
+    - prefix: broadcast
+      distribution: multicast
+    - prefix: collectd
+      distribution: multicast
+  listeners:
+    - host: "0.0.0.0"
+      port: 5671
+      expose: true
+    - port: 5672
+    - port: 8672
+      http: true
+  edgeConnectors:
+    - name: router
+      host: default-interconnect
+      port: 5671
+      verifyHostname: no
+
