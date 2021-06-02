@@ -23,7 +23,7 @@ data:
           useBasicAuth: true
           hostURL: https://elasticsearch-es-http.service-telemetry.svc.cluster.local:9200
           user: elastic
-          password: U15j550j498YkjLm1fLN6PeQ
+          password: cKwR10579MKPCgLxT1387Ls3
           useTLS: true
           tlsServerName: elasticsearch-es-http.service-telemetry.svc.cluster.local
           tlsClientCert: /config/certs/tls.crt

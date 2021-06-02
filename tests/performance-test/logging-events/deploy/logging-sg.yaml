@@ -22,7 +22,7 @@ spec:
       containers:
       - args:
         - --amqp_url
-        - amqp://default-interconnect.service-telemetry.svc.cluster.local:5672/rsyslog/logs
+        - amqp://default-interconnect.service-telemetry.svc.cluster.local:5673/rsyslog/logs
         - --verbose
         - --block
         - --stat_period

@@ -1,0 +1,88 @@
+#!/bin/bash
+ 
+OPTIND=1
+ 
+METHOD="GET"
+DATA=""
+ 
+ESPASSCACHE=$HOME/.local/cache/es-pass
+ESROUTECACHE=$HOME/.local/cache/es-route
+ENDPOINT=""
+ 
+help(){
+cat << EOF
+$(basename -- $0) <options> <endpoint>
+ 
+Options:
+    -h help
+    -m method (default GET)
+    -d data
+    -f flush cache
+EOF
+}
+ 
+synccache() {
+    PASS=$(oc get secret elasticsearch-es-elastic-user -ojsonpath='{.data.elastic}' | base64 -d)
+    ROUTE=$(oc get route -l common.k8s.elastic.co/type=elasticsearch -ojsonpath='{.items[0].spec.host}')
+    echo $PASS > $ESPASSCACHE
+    echo $ROUTE > $ESROUTECACHE
+}
+ 
+loadfromcache() {
+    PASS=$(cat $ESPASSCACHE)
+    ROUTE=$(cat $ESROUTECACHE)
+}
+ 
+curlmethod(){
+    case "$METHOD" in
+    "POST"|"PUT")
+        if [ -z "$DATA" ]; then
+            echo "Warning: no data for method $METHOD"
+        fi
+        curl -ks -H 'Content-Type: application/json' -u "elastic:$PASS" -X $METHOD "https://$ROUTE$ENDPOINT" -d "$DATA"
+        exit
+        ;;
+    *)
+        curl -k -u "elastic:$PASS" -X$METHOD "https://$ROUTE$ENDPOINT"
+        ;;
+ 
+    esac
+}
+ 
+while getopts "fm:d:h" opt; do
+    case "$opt" in
+    m)
+        METHOD="$OPTARG"
+        ;;
+    d)
+        DATA=$(echo "$OPTARG"|tr '\n' ' ')
+        ;;
+    f)
+        rm $ESPASSCACHE &> /dev/null
+        rm $ESROUTECACHE &> /dev/null
+        if [ $? == 0 ]; then
+            echo "Flushed cache"
+        fi
+        exit
+        ;;
+    h)
+        help
+        exit
+        ;;
+    esac
+done
+shift $((OPTIND-1))
+ENDPOINT=$@
+ 
+if [ ! -f "$ESPASSCACHE" ] && [ ! -f "$ESROUTECACHE" ]; then
+    synccache
+fi
+ 
+loadfromcache
+curlmethod
+ 
+if [ $? -ne 0 ]; then
+    synccache
+    loadfromcache
+    curlmethod
+fi
