@@ -29,6 +29,8 @@ spec:
         - "60"
         - --rbc
         - "15000"
+        - --rbs
+        - "131976"
         - --count
         - "0"
         image: image-registry.openshift-image-registry.svc:5000/service-telemetry/sg-bridge:latest
