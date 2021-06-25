@@ -69,3 +69,19 @@ custom_templates:
 
             # provide the human-friendly name of the virtual instance
             collectd::plugin::virt::plugin_instance_format: metadata
+
+            collectd::plugin::memcached::instances:
+              local:
+                host: "%{hiera(fqdn_canonical)}"
+                port: 11211
+            collectd::plugin::cpu::reportbycpu: true
+            collectd::plugin::cpu::reportbystate: true
+            collectd::plugin::cpu::reportnumcpu: false
+            collectd::plugin::cpu::valuespercentage: true
+            collectd::plugin::df::ignoreselected: true
+            collectd::plugin::df::reportbydevice: true
+            collectd::plugin::df::fstypes: ['xfs']
+            collectd::plugin::load::reportrelative: true
+            collectd::plugin::virt::connection: "qemu:///system"
+            collectd::plugin::virt::extra_stats: "pcpu cpu_util vcpupin vcpu memory disk disk_err disk_allocation disk_capacity disk_physical domain_state job_stats_background perf"
+
