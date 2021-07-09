@@ -49,12 +49,12 @@ curl -sk -u "elastic:${ELASTICSEARCH_AUTH_PASS}" -X GET "https://${ELASTICSEARCH
 echo
 
 echo "*** [INFO] Get documents for this test from ElasticSearch..."
-ES_INDEX=$(curl -sk -u "elastic:${ELASTICSEARCH_AUTH_PASS}" -X GET "https://${ELASTICSEARCH}/_cat/indices/ceilometer_*" | cut -d' ' -f3)
+ES_INDEX=ceilometer_image
 DOCUMENT_HITS=$(curl -sk -u "elastic:${ELASTICSEARCH_AUTH_PASS}" -X GET "https://${ELASTICSEARCH}/${ES_INDEX}/_search" -H 'Content-Type: application/json' -d'{
   "query": {
     "match_all": {}
   }
-}' | python3 -c "import sys, json; parsed = json.load(sys.stdin); print(parsed['hits']['total']['value'])")
+}'| python3 -c "import sys, json; parsed = json.load(sys.stdin); print(parsed['hits']['total']['value'])")
 
 echo "*** [INFO] Found ${DOCUMENT_HITS} documents"
 echo; echo
