@@ -35,6 +35,10 @@ spec:
         - name: collectd-entrypoint-script
           mountPath: /smoketest_collectd_entrypoint.sh
           subPath: smoketest_collectd_entrypoint.sh
+        securityContext:
+          allowPrivilegeEscalation: false
+          runAsUser: 1000670000
+            
       - name: smoketest-ceilometer
         image: quay.io/tripleomaster/openstack-ceilometer-notification:current-tripleo
         command:

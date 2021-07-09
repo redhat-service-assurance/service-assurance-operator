@@ -1,1 +1,1 @@
-{"service":"smoketest-svc","container":"smoketest-container","status":"unhealthy","healthy":0}
+[{"service":"smoketest-svc","container":"smoketest-container","status":"unhealthy","healthy":0}]
