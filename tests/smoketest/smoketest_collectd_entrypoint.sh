@@ -1,6 +1,7 @@
 #!/bin/sh
 set -e
 
+
 # Executes inside the test harness container to start collectd and look for resulting metrics in prometheus
 PROMETHEUS=${PROMETHEUS:-"prometheus-operated:9090"}
 ELASTICSEARCH=${ELASTICSEARCH:-"elasticsearch-es-http:9200"}

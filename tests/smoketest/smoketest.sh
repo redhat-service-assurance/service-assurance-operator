@@ -31,8 +31,10 @@ echo "*** [INFO] Getting ElasticSearch authentication password"
 ELASTICSEARCH_AUTH_PASS=$(oc get secret elasticsearch-es-elastic-user -ogo-template='{{ .data.elastic | base64decode }}')
 
 echo "*** [INFO] Creating configmaps..."
-oc delete configmap/stf-smoketest-collectd-config configmap/stf-smoketest-collectd-entrypoint-script configmap/stf-smoketest-ceilometer-publisher configmap/stf-smoketest-ceilometer-entrypoint-script job/stf-smoketest || true
+oc delete configmap/stf-smoketest-healthcheck-log configmap/stf-smoketest-collectd-config configmap/stf-smoketest-sensubility-config configmap/stf-smoketest-collectd-entrypoint-script configmap/stf-smoketest-ceilometer-publisher configmap/stf-smoketest-ceilometer-entrypoint-script job/stf-smoketest || true
+oc create configmap stf-smoketest-healthcheck-log --from-file ${REL}/healthcheck.log
 oc create configmap stf-smoketest-collectd-config --from-file ${REL}/minimal-collectd.conf.template
+oc create configmap stf-smoketest-sensubility-config --from-file ${REL}/collectd-sensubility.conf
 oc create configmap stf-smoketest-collectd-entrypoint-script --from-file ${REL}/smoketest_collectd_entrypoint.sh
 oc create configmap stf-smoketest-ceilometer-publisher --from-file ${REL}/ceilometer_publish.py
 oc create configmap stf-smoketest-ceilometer-entrypoint-script --from-file ${REL}/smoketest_ceilometer_entrypoint.sh
