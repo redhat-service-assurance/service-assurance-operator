@@ -1,6 +1,7 @@
 #!/bin/sh
 set -e
 
+
 # Executes inside the test harness container to start collectd and look for resulting metrics in prometheus
 PROMETHEUS=${PROMETHEUS:-"prometheus-operated:9090"}
 ELASTICSEARCH=${ELASTICSEARCH:-"elasticsearch-es-http:9200"}
@@ -28,8 +29,8 @@ until [ $retries -eq 0 ] || grep "Initialization complete, entering read-loop" /
 done
 
 # Sleeping to collect 1m of actual metrics
-echo "*** [INFO] Sleeping for 60 seconds to collect a minute of metrics and events"
-sleep 60
+echo "*** [INFO] Sleeping for 30 seconds to collect 30s of metrics and events"
+sleep 30
 
 echo "*** [INFO] List of metric names for debugging..."
 curl -g "${PROMETHEUS}/api/v1/label/__name__/values" 2>&2 | tee /tmp/label_names
@@ -44,6 +45,18 @@ echo; echo
 echo "*** [INFO] Checking for returned CPU metrics..."
 grep -E '"result":\[{"metric":{"__name__":"collectd_cpu_total","container":"sg-core","endpoint":"prom-http","host":"'"${POD}"'","plugin_instance":"0","service":"default-cloud1-coll-meter","type_instance":"user"},"values":\[\[.+,".+"\]' /tmp/query_output
 metrics_result=$?
+echo; echo
+
+# Checks that the metrics actually appear in prometheus
+echo "*** [INFO] Checking for recent healthcheck metrics..."
+curl -g "${PROMETHEUS}/api/v1/query?" --data-urlencode 'query=sensubility_container_health_status{container="sg-core",service="default-cloud1-sens-meter",host="'"${POD}"'"}[1m]' 2>&2 | tee /tmp/query_output
+echo; echo
+
+# The egrep exit code is the result of the test and becomes the container/pod/job exit code
+echo "*** [INFO] Checking for returned healthcheck metrics..."
+grep -E '"result":\[{"metric":{"__name__":"sensubility_container_health_status","container":"sg-core","endpoint":"prom-http","host":"'"${POD}"'","process":"smoketest-svc","service":"default-cloud1-sens-meter"},"values":\[\[.+,".+"\]' /tmp/query_output
+metrics_result=$((metrics_result || $?))
+echo; echo
 
 echo "*** [INFO] Get documents for this test from ElasticSearch..."
 DOCUMENT_HITS=$(curl -sk -u "elastic:${ELASTICSEARCH_AUTH_PASS}" -X GET "https://${ELASTICSEARCH}/_search" -H 'Content-Type: application/json' -d'{

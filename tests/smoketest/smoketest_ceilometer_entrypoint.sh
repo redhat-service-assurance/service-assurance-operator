@@ -12,7 +12,7 @@ POD=$(hostname)
 echo "*** [INFO] My pod is: ${POD}"
 
 # Run ceilometer_publisher script
-python3 /ceilometer_publish.py default-interconnect:5672 driver=amqp&topic=metric driver=amqp&topic=event
+python3 /ceilometer_publish.py default-interconnect:5671 driver=amqp&topic=metric driver=amqp&topic=event
 
 # Sleeping to produce data
 echo "*** [INFO] Sleeping for 20 seconds to produce all metrics and events"
@@ -49,12 +49,12 @@ curl -sk -u "elastic:${ELASTICSEARCH_AUTH_PASS}" -X GET "https://${ELASTICSEARCH
 echo
 
 echo "*** [INFO] Get documents for this test from ElasticSearch..."
-ES_INDEX=$(curl -sk -u "elastic:${ELASTICSEARCH_AUTH_PASS}" -X GET "https://${ELASTICSEARCH}/_cat/indices/ceilometer_*" | cut -d' ' -f3)
+ES_INDEX=ceilometer_image
 DOCUMENT_HITS=$(curl -sk -u "elastic:${ELASTICSEARCH_AUTH_PASS}" -X GET "https://${ELASTICSEARCH}/${ES_INDEX}/_search" -H 'Content-Type: application/json' -d'{
   "query": {
     "match_all": {}
   }
-}' | python3 -c "import sys, json; parsed = json.load(sys.stdin); print(parsed['hits']['total']['value'])")
+}'| python3 -c "import sys, json; parsed = json.load(sys.stdin); print(parsed['hits']['total']['value'])")
 
 echo "*** [INFO] Found ${DOCUMENT_HITS} documents"
 echo; echo

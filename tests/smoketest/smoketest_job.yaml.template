@@ -26,9 +26,19 @@ spec:
         - name: collectd-config
           mountPath: /etc/minimal-collectd.conf.template
           subPath: minimal-collectd.conf.template
+        - name: sensubility-config
+          mountPath: /etc/collectd-sensubility.conf
+          subPath: collectd-sensubility.conf
+        - name: healthcheck-log
+          mountPath: /healthcheck.log
+          subPath: healthcheck.log
         - name: collectd-entrypoint-script
           mountPath: /smoketest_collectd_entrypoint.sh
           subPath: smoketest_collectd_entrypoint.sh
+        securityContext:
+          allowPrivilegeEscalation: false
+          runAsUser: 1000670000
+            
       - name: smoketest-ceilometer
         image: quay.io/tripleomaster/openstack-ceilometer-notification:current-tripleo
         command:
@@ -49,6 +59,12 @@ spec:
       - name: collectd-config
         configMap:
           name: stf-smoketest-collectd-config
+      - name: sensubility-config
+        configMap:
+          name: stf-smoketest-sensubility-config
+      - name: healthcheck-log
+        configMap:
+          name: stf-smoketest-healthcheck-log
       - name: collectd-entrypoint-script
         configMap:
           name: stf-smoketest-collectd-entrypoint-script

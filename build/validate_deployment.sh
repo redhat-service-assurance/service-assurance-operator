@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 set -e
 
+if [ -n ${OCP_PROJECT+x} ]; then
+    oc project $OCP_PROJECT
+fi
+
 # Play the (automated!) waiting game
 echo -e "\n* [info] Waiting for QDR deployment to complete\n"
 until timeout 300 oc rollout status deployment.apps/default-interconnect; do sleep 3; done
