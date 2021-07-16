@@ -1,4 +1,4 @@
-The Jenkins agent pod is used to run all Jenkins pipelines for the Service Telemetry Framework.
+The Jenkins agent pod is used to run all Jenkins pipelines for the Service Telemetry Framework. 
 
 # Build in OpenShift
 ```bash
